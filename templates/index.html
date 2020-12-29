@@ -1,5 +1,21 @@
 {% extends "includes/layout.html" %}
 
 {% block body_content %}
+    <!-- TODO: Buraya bir jumbotron eklenecek. Eger giris yapmissa farkli mesaj yapmamissa farkli mesaj yazilacak.
+    Giris yapildiysa hosgeldin username seklinde olup -->
+    <div class="container">
+        <div class="jumbotron">
+            {% if session["logged_in"] %}
+                <h1 class="display-4">Welcome, {{sesion["username"]}}</h1>
+                <p class="lead">Go to dashboard..</p> <!-- Daha iyi ingilizce cumelelr ekleneecek. -->
+            {% else %}
+                <h1 class="display-4">Hello, guest!</h1>
+                <p class="lead">Please login to process your password.</p> <!-- Daha iyi ingilizce cumelelr ekleneecek. -->
+            {% endif %}
+            <hr class="my-4">
+            <p class="lead">PwCase is the best solution to keep passwords safe.</p>
+            <a class="btn btn-warning" href="/" role="button">Learn more</a>
+        </div>
+    </div>
 
 {% endblock body_content %}
