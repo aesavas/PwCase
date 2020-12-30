@@ -3,12 +3,11 @@ from flask.helpers import flash
 from flask_sqlalchemy import SQLAlchemy
 from templates.forms.LoginForm import LoginForm
 from templates.forms.RegisterForm import RegisterForm
-from templates.models.Users import Users
 from passlib.handlers.sha2_crypt import sha256_crypt
 
 app = Flask(__name__)
 app.secret_key = "pwcase"
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:asd123@localhost/NEWDATABASENAME' # Buraya yeni databasein adi yazilacak.
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:asd123@localhost/pwcase' # Buraya yeni databasein adi yazilacak.
 db = SQLAlchemy(app)
 
 # DB Models
@@ -40,8 +39,21 @@ def login():
 @app.route("/register", methods=["GET","POST"])
 def register():
     form = RegisterForm(request.form)
-    
-    return render_template("pages/register.html", form=form)
+    if request.method == "POST" and form.validate():
+        name = form.name.data
+        username = form.username.data
+        email = form.email.data
+        secret_key = form.secret_key.data
+        password = sha256_crypt.encrypt(form.password.data)
+        re_password = sha256_crypt.encrypt(form.re_password.data)
+        new_user = Users(name_surname=name, username=username, secret_key=secret_key, email=email, password=password)
+        db.session.add(new_user)
+        db.session.commit()
+        flash("You have successfully registered !", "success")
+        return redirect(url_for("login"))
+    else:
+        flash("Something went wrong ! Please try again.", "warning")
+        return render_template("pages/register.html", form=form)
 
 
 
@@ -49,4 +61,5 @@ def register():
 ################################################################################################################
 
 if __name__ == "__main__":
+    db.create_all()
     app.run(debug=True)
