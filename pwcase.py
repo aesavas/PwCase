@@ -33,6 +33,23 @@ def index():
 @app.route("/login", methods=["GET","POST"])
 def login():
     form = LoginForm(request.form)
+    if request.method == "POST":
+        username = form.username.data
+        password = form.password.data
+        result = Users.query.filter_by(username=username).first()
+        if result:
+            realpw = result.password
+            if sha256_crypt.verify(password, realpw):
+                flash("You have successfully logged in !")
+                session["logged_in"] = True
+                session["username"] = username
+                return redirect(url_for("index"))
+            else:
+                flash("You entered your password incorrectly. Please try again.", "danger")
+                return redirect(url_for("login"))
+        else:
+            flash("Wrong username or password, please try again.")
+            return redirect(url_for("login"))
     return render_template("pages/login.html", form=form)
 
 # Register

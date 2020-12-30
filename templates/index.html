@@ -6,7 +6,7 @@
     <div class="container">
         <div class="jumbotron">
             {% if session["logged_in"] %}
-                <h1 class="display-4">Welcome, {{sesion["username"]}}</h1>
+                <h1 class="display-4">Welcome, {{session["username"]}}</h1>
                 <p class="lead">Go to dashboard..</p> <!-- Daha iyi ingilizce cumelelr ekleneecek. -->
             {% else %}
                 <h1 class="display-4">Hello, guest!</h1>
