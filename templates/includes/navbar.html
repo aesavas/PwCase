@@ -9,9 +9,22 @@
       <div class="collapse navbar-collapse" id="navbarCollapse">
         <ul class="navbar-nav ml-auto">
           <!-- TODO: Session ile kontrol edilecek. Giris yapilmamissa 'Login' yapilmissa 'Dashboard' ve 'Logout' butonlari yer alacak. -->
-          <li class="nav-item">
-            <a class="nav-link" href="/login">Login</a>
-          </li>
+          {% if session["logged_in"] %}
+            <li class="nav-item">
+              <a class="nav-link" href="/dashboard">Dashboard</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/settings">Settings</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/logout">Logout</a>
+            </li>
+          {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="/login">Login</a>
+            </li>
+          {% endif %}
+          
         </ul>
       </div>
 </nav>
