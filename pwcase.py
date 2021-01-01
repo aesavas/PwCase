@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from templates.forms.LoginForm import LoginForm
 from templates.forms.RegisterForm import RegisterForm
 from passlib.handlers.sha2_crypt import sha256_crypt
+from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = "pwcase"
@@ -21,6 +22,19 @@ class Users(db.Model):
     email = db.Column(db.String(80))
     password = db.Column(db.Text, nullable=False)
     secret_key = db.Column(db.Integer, nullable=False)
+
+
+# Login Required Decorator
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "logged_in" in session:
+            return f(*args, **kwargs)
+        else:
+            flash("Bu sayfayi goruntulemek icin lutfen giris yapin.", "danger")
+            return redirect(url_for("login"))
+    return decorated_function
+
 
 ###############################################################################################################
 # PAGES
@@ -42,7 +56,7 @@ def login():
         if result:
             realpw = result.password
             if sha256_crypt.verify(password, realpw):
-                flash("You have successfully logged in !")
+                flash("You have successfully logged in !", "success")
                 session["logged_in"] = True
                 session["username"] = username
                 return redirect(url_for("index"))
@@ -50,7 +64,7 @@ def login():
                 flash("You entered your password incorrectly. Please try again.", "danger")
                 return redirect(url_for("login"))
         else:
-            flash("Wrong username or password, please try again.")
+            flash("Wrong username or password, please try again.", "danger")
             return redirect(url_for("login"))
     return render_template("pages/login.html", form=form)
 
@@ -58,6 +72,7 @@ def login():
 @app.route("/logout")
 def logout():
     session.clear()
+    flash("You have logout succesfully.", "primary")
     return redirect(url_for("index"))
 
 # Register
@@ -80,7 +95,11 @@ def register():
         flash("Something went wrong ! Please try again.", "warning")
         return render_template("pages/register.html", form=form)
 
-
+# Dashboard
+@app.route("/dashboard")
+@login_required
+def dashboard():
+    return render_template("pages/dashboard.html")
 
 
 ################################################################################################################
