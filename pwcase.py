@@ -10,6 +10,8 @@ app.secret_key = "pwcase"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:asd123@localhost/pwcase' # Buraya yeni databasein adi yazilacak.
 db = SQLAlchemy(app)
 
+##############################################################################################################
+
 # DB Models
 # User table model
 class Users(db.Model):
@@ -20,8 +22,8 @@ class Users(db.Model):
     password = db.Column(db.Text, nullable=False)
     secret_key = db.Column(db.Integer, nullable=False)
 
-
-
+###############################################################################################################
+# PAGES
 
 #Index
 @app.route("/")
@@ -51,6 +53,12 @@ def login():
             flash("Wrong username or password, please try again.")
             return redirect(url_for("login"))
     return render_template("pages/login.html", form=form)
+
+# Logout
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("index"))
 
 # Register
 @app.route("/register", methods=["GET","POST"])
