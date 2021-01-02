@@ -7,7 +7,7 @@
     <a href="/addpw" class="btn btn-danger">Add New Password</a>
     <hr>
     
-    {% if not password_list %}
+    {% if password_list %}
         <table class="table table-hover">
             <thead class="thead-dark">
                 <tr>
@@ -21,7 +21,20 @@
                     <th scope="col"></th>
                 </tr>
             </thead>
-            <!-- Tbody olusturulacak. -->
+            <tbody>
+                {% for pw in password_list %}
+                    <tr>
+                        <th scope="row">{{loop.index}}</th>
+                        <td>{{pw.registration_mail}}</td>
+                        <td>{{pw.platform_username}}</td>
+                        <td>{{pw_symbol}}</td>
+                        <td>{{pw.platform}}</td>
+                        <td><a href="" class="btn btn-primary">Show Password</a></td>
+                        <td><a href="" class="btn btn-warning">Edit</a></td>
+                        <td><a href="" class="btn btn-danger">Delete</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
         </table>
     {% else %}
     {% endif %}

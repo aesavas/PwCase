@@ -110,7 +110,9 @@ def register():
 @app.route("/dashboard")
 @login_required
 def dashboard():
-    return render_template("pages/dashboard.html")
+    password_list = Passwords.query.filter_by(person_id=session["id"])
+    pw_symbol = str("*")*8
+    return render_template("pages/dashboard.html", pw_symbol=pw_symbol , password_list=password_list)
 
 @app.route("/addpw", methods=["GET","POST"])
 @login_required
