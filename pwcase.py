@@ -3,6 +3,7 @@ from flask.helpers import flash
 from flask_sqlalchemy import SQLAlchemy
 from templates.forms.LoginForm import LoginForm
 from templates.forms.RegisterForm import RegisterForm
+from templates.forms.PasswordForm import PasswordForm
 from passlib.handlers.sha2_crypt import sha256_crypt
 from functools import wraps
 
@@ -100,6 +101,12 @@ def register():
 @login_required
 def dashboard():
     return render_template("pages/dashboard.html")
+
+@app.route("/addpw", methods=["GET","POST"])
+@login_required
+def addPassword():
+    form = PasswordForm(request.form)
+    return render_template("pages/addpw.html",form=form)
 
 
 ################################################################################################################

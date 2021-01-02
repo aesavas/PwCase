@@ -1,0 +1,16 @@
+{% extends "includes/layout.html" %}
+
+{% block body_content %}
+    {% from "includes/_formhelpers.html" import render_field %}
+    <form method="POST">
+        <div class="form-group">
+            {{ render_field(form.registration, class="form-control form-control-sm") }}
+            {{ render_field(form.username, class="form-control form-control-sm") }}
+            {{ render_field(form.password, class="form-control form-control-sm") }}
+            {{ render_field(form.platform, class="form-control form-control-sm") }}
+            <hr>
+            <button type="submit" class="btn btn-primary form-control">ADD PASSWORD</button>
+        </div>
+    </form>
+
+{% endblock body_content %}
