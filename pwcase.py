@@ -138,6 +138,26 @@ def deletePassword(id):
     db.session.delete(password)
     db.session.commit()
     return redirect(url_for("dashboard"))
+
+@app.route("/edit/<string:id>", methods=["GET","POST"])
+@login_required
+def editDetail(id):
+    # Daha sonra devam edilecek. Menu secenegi gelip neyi yenilemek istedigi sorulacak. Ona gore bir edit islemi yapilacak.
+    if request.method == "GET":
+        password = Passwords.query.filter_by(id=id).first()
+        if password:
+            form = PasswordForm()
+            form.registration.data = password.registration_mail
+            form.username.data = password.platform_username
+            form.password.data = "********"  #password.platform_password
+            form.platform.data = password.platform
+            return render_template("/pages/edit.html", form=form)
+        else:
+            flash("There is no password like this or you do not have permission edit it !", "danger")
+            return redirect(url_for("dashboard"))
+    else:
+        pass
+
 ################################################################################################################
 
 if __name__ == "__main__":
