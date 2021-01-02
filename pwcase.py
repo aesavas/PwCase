@@ -131,7 +131,13 @@ def addPassword():
     else:
         return render_template("pages/addpw.html",form=form)
 
-
+@app.route("/deletepw/<string:id>")
+@login_required
+def deletePassword(id):
+    password = Passwords.query.filter_by(id=id).first()
+    db.session.delete(password)
+    db.session.commit()
+    return redirect(url_for("dashboard"))
 ################################################################################################################
 
 if __name__ == "__main__":
