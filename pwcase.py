@@ -23,6 +23,16 @@ class Users(db.Model):
     email = db.Column(db.String(80))
     password = db.Column(db.Text, nullable=False)
     secret_key = db.Column(db.Integer, nullable=False)
+    password_list = db.relationship('Passwords', backref='users', lazy=True)
+
+
+class Passwords(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    registration_mail = db.Column(db.String(80), nullable=False)
+    platform_username = db.Column(db.String(80), nullable=False)
+    platform_password = db.Column(db.Text, nullable=False)
+    platform = db.Column(db.String(80), nullable=False)
+    person_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
 
 
 # Login Required Decorator
@@ -60,6 +70,7 @@ def login():
                 flash("You have successfully logged in !", "success")
                 session["logged_in"] = True
                 session["username"] = username
+                session["id"] = result.id
                 return redirect(url_for("index"))
             else:
                 flash("You entered your password incorrectly. Please try again.", "danger")
@@ -93,7 +104,6 @@ def register():
         flash("You have successfully registered !", "success")
         return redirect(url_for("login"))
     else:
-        flash("Something went wrong ! Please try again.", "warning")
         return render_template("pages/register.html", form=form)
 
 # Dashboard
@@ -106,7 +116,18 @@ def dashboard():
 @login_required
 def addPassword():
     form = PasswordForm(request.form)
-    return render_template("pages/addpw.html",form=form)
+    if request.method=="POST" and form.validate():
+        email = form.registration.data
+        username = form.username.data
+        password = sha256_crypt.encrypt(form.password.data)
+        platform = form.platform.data
+        new_data = Passwords(registration_mail = email, platform_username = username, platform_password = password, platform=platform, person_id = session["id"])
+        db.session.add(new_data)
+        db.session.commit()
+        flash("You have successfully added your data !", "success")
+        return redirect(url_for("dashboard"))
+    else:
+        return render_template("pages/addpw.html",form=form)
 
 
 ################################################################################################################
