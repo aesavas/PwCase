@@ -174,11 +174,15 @@ def showDetail(id):
         user = Users.query.filter_by(id=session["id"]).first()
         if secret_key == str(user.secret_key):
             password = Passwords.query.filter_by(id=id).first()
-            if password.person_id == session["id"]:
+            if password and password.person_id == session["id"]:
                 password.platform_password = Encryption.decryptData(session["crypto_key"], password.platform_password)
                 auth = True
                 flash("You have entered correct secret key ! Here is your information...", "success")
                 return render_template("pages/detail.html", auth=auth, pw=password, form=form)
+            else:
+                flash("There is no data for you with this ID!", "danger")
+                auth=False
+                return render_template("pages/detail.html", auth=auth, form=form)
         else:
             auth= False
             flash("You have entered wrong secret key !", "danger")
