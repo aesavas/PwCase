@@ -119,6 +119,7 @@ def dashboard():
     pw_symbol = str("*")*8
     return render_template("pages/dashboard.html", pw_symbol=pw_symbol , password_list=password_list)
 
+# Add Password
 @app.route("/addpw", methods=["GET","POST"])
 @login_required
 def addPassword():
@@ -136,14 +137,22 @@ def addPassword():
     else:
         return render_template("pages/addpw.html",form=form)
 
+# Delete Password
 @app.route("/deletepw/<string:id>")
 @login_required
 def deletePassword(id):
     password = Passwords.query.filter_by(id=id).first()
-    db.session.delete(password)
-    db.session.commit()
-    return redirect(url_for("dashboard"))
+    if password and password.person_id == session["id"]:
+        flash("You have deleted information successfully","success")
+        db.session.delete(password)
+        db.session.commit()
+        return redirect(url_for("dashboard"))
+    else:
+        flash("You do not have permission to delete this information!", "warning")
+        return redirect(url_for("dashboard"))
 
+
+# Edit Password
 @app.route("/edit/<string:id>", methods=["GET","POST"])
 @login_required
 def editDetail(id):
@@ -163,6 +172,7 @@ def editDetail(id):
     else:
         pass
 
+# Show Password
 @app.route("/detail/<string:id>", methods=["GET","POST"])
 @login_required
 def showDetail(id):
