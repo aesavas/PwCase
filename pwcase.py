@@ -4,9 +4,10 @@ from flask_sqlalchemy import SQLAlchemy
 from templates.forms.LoginForm import LoginForm
 from templates.forms.RegisterForm import RegisterForm
 from templates.forms.PasswordForm import PasswordForm
+from templates.forms.SecretKeyForm import SecretKeyForm
 from passlib.handlers.sha2_crypt import sha256_crypt
 from functools import wraps
-import templates.includes.encryption as encryption
+from templates.includes.encryption import Encryption
 
 app = Flask(__name__)
 app.secret_key = "pwcase"
@@ -101,7 +102,7 @@ def register():
         secret_key = form.secret_key.data
         password = sha256_crypt.encrypt(form.password.data)
         re_password = sha256_crypt.encrypt(form.re_password.data)
-        crypto_key = encryption.createKey()
+        crypto_key = Encryption.createKey()
         new_user = Users(name_surname=name, username=username, secret_key=secret_key, crypto_key=crypto_key , email=email, password=password)
         db.session.add(new_user)
         db.session.commit()
@@ -125,7 +126,7 @@ def addPassword():
     if request.method=="POST" and form.validate():
         email = form.registration.data
         username = form.username.data
-        password = encryption.encryptData(session["crypto_key", form.password.data])
+        password = Encryption.encryptData(session["crypto_key"], form.password.data)
         platform = form.platform.data
         new_data = Passwords(registration_mail = email, platform_username = username, platform_password = password, platform=platform, person_id = session["id"])
         db.session.add(new_data)
@@ -163,16 +164,25 @@ def editDetail(id):
         pass
 
 @app.route("/detail/<string:id>", methods=["GET","POST"])
+@login_required
 def showDetail(id):
-    # Sifreleme isleminin yapisi degisecek.
+    form = SecretKeyForm(request.form)
     if request.method == "GET":
-        pass
+        return render_template("pages/detail.html", form=form)
     else:
-        secret_key = request.form
+        secret_key = form.secret_key.data
         user = Users.query.filter_by(id=session["id"]).first()
-        if secret_key == user.secret_key:
+        if secret_key == str(user.secret_key):
             password = Passwords.query.filter_by(id=id).first()
-            real_pw = sha256_crypt.decrypt()
+            if password.person_id == session["id"]:
+                password.platform_password = Encryption.decryptData(session["crypto_key"], password.platform_password)
+                auth = True
+                flash("You have entered correct secret key ! Here is your information...", "success")
+                return render_template("pages/detail.html", auth=auth, pw=password, form=form)
+        else:
+            auth= False
+            flash("You have entered wrong secret key !", "danger")
+            return render_template("pages/detail.html", auth=auth, form=form)
 
 ################################################################################################################
 

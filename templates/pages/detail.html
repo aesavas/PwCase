@@ -1,0 +1,19 @@
+{% extends "includes/layout.html" %}
+
+{% block body_content %}
+    {% from "includes/_formhelpers.html" import render_field %}
+    <form method="POST">
+        <div class="form-group">
+            {{ render_field(form.secret_key, class="form-control-sm mb-2") }}
+            <button type="submit" class="btn btn-primary mb-2">ENTER</button>
+            <a href="/dashboard" class="btn btn-secondary mb-2">BACK</a>
+            <hr>
+        </div>
+    </form>
+    {% if auth %}
+        <h4>Platform : {{pw.platform}}</h4>
+        Username : {{pw.platform_username}} <br>
+        Password : {{pw.platform_password}} <br>
+        E-mail : {{pw.registration_mail}} <br>
+    {% endif %}
+{% endblock body_content %}
