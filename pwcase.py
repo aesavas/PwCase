@@ -6,6 +6,7 @@ from templates.forms.RegisterForm import RegisterForm
 from templates.forms.PasswordForm import PasswordForm
 from passlib.handlers.sha2_crypt import sha256_crypt
 from functools import wraps
+import templates.includes.encryption as encryption
 
 app = Flask(__name__)
 app.secret_key = "pwcase"
@@ -23,6 +24,7 @@ class Users(db.Model):
     email = db.Column(db.String(80))
     password = db.Column(db.Text, nullable=False)
     secret_key = db.Column(db.Integer, nullable=False)
+    crypto_key = db.Column(db.Text, nullable=False)
     password_list = db.relationship('Passwords', backref='users', lazy=True)
 
 
@@ -71,6 +73,7 @@ def login():
                 session["logged_in"] = True
                 session["username"] = username
                 session["id"] = result.id
+                session["crypto_key"] = result.crypto_key
                 return redirect(url_for("index"))
             else:
                 flash("You entered your password incorrectly. Please try again.", "danger")
@@ -98,7 +101,8 @@ def register():
         secret_key = form.secret_key.data
         password = sha256_crypt.encrypt(form.password.data)
         re_password = sha256_crypt.encrypt(form.re_password.data)
-        new_user = Users(name_surname=name, username=username, secret_key=secret_key, email=email, password=password)
+        crypto_key = encryption.createKey()
+        new_user = Users(name_surname=name, username=username, secret_key=secret_key, crypto_key=crypto_key , email=email, password=password)
         db.session.add(new_user)
         db.session.commit()
         flash("You have successfully registered !", "success")
@@ -121,7 +125,7 @@ def addPassword():
     if request.method=="POST" and form.validate():
         email = form.registration.data
         username = form.username.data
-        password = sha256_crypt.encrypt(form.password.data)
+        password = encryption.encryptData(session["crypto_key", form.password.data])
         platform = form.platform.data
         new_data = Passwords(registration_mail = email, platform_username = username, platform_password = password, platform=platform, person_id = session["id"])
         db.session.add(new_data)
@@ -157,6 +161,18 @@ def editDetail(id):
             return redirect(url_for("dashboard"))
     else:
         pass
+
+@app.route("/detail/<string:id>", methods=["GET","POST"])
+def showDetail(id):
+    # Sifreleme isleminin yapisi degisecek.
+    if request.method == "GET":
+        pass
+    else:
+        secret_key = request.form
+        user = Users.query.filter_by(id=session["id"]).first()
+        if secret_key == user.secret_key:
+            password = Passwords.query.filter_by(id=id).first()
+            real_pw = sha256_crypt.decrypt()
 
 ################################################################################################################
 
