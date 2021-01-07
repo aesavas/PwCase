@@ -2,17 +2,35 @@
 
 {% block body_content %}
     {% from "includes/_formhelpers.html" import render_field %}
-    <form method="POST">
-        <div class="form-group">
-            {{ render_field(form.registration, class="form-control form-control-sm") }}
-            {{ render_field(form.username, class="form-control form-control-sm") }}
-            {{ render_field(form.password, class="form-control form-control-sm") }}
-            {{ render_field(form.platform, class="form-control form-control-sm") }}
+    {% if choose %}
+        {% if pw %}
+            <form method="POST">
+                <div class="form-group">
+                    {{ render_field(form.newPw, class="form-control") }}
+                    <button type="submit" class="btn btn-warning form-control">SAVE</button>
+                    <a href="/dashboard" class="btn btn-secondary form-control">BACK</a>
+                </div>
+                <hr>
+            </form>
+        {% else %}
+            <form method="POST">
+                <div class="form-group">
+                    {{ render_field(form.anyInfo, class="form-control") }}
+                    <button type="submit" class="btn btn-warning form-control">SAVE</button>
+                    <a href="/dashboard" class="btn btn-secondary form-control">BACK</a>
+                </div>
+                <hr>
+            </form>
+        {% endif %}
+    {% else %}
+        <form method="POST">
+            <div class="form-group">
+                {{ render_field(form.category, class="form-control") }}
+                <button type="submit" class="btn btn-warning form-control">CHOOSE</button>
+                <a href="/dashboard" class="btn btn-secondary form-control">BACK</a>
+            </div>
             <hr>
-            <button type="submit" class="btn btn-primary">ADD PASSWORD</button>
-            <a href="/dashboard" class="btn btn-warning">BACK</a>
-
-        </div>
-    </form>
+        </form>
+    {% endif %}
 
 {% endblock body_content %}

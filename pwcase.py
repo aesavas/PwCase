@@ -6,6 +6,7 @@ from templates.forms.RegisterForm import RegisterForm
 from templates.forms.PasswordForm import PasswordForm
 from templates.forms.SecretKeyForm import SecretKeyForm
 from templates.forms.EditProfileForm import EditProfileForm
+from templates.forms.EditDetailForm import EditDetailForm
 from passlib.handlers.sha2_crypt import sha256_crypt
 from functools import wraps
 from templates.includes.encryption import Encryption
@@ -148,25 +149,58 @@ def deletePassword(id):
         flash("You do not have permission to delete this information!", "warning")
         return redirect(url_for("dashboard"))
 
-# Edit Password
+# Edit Detail
 @app.route("/edit/<string:id>", methods=["GET","POST"])
 @login_required
 def editDetail(id):
-    # Daha sonra devam edilecek. Menu secenegi gelip neyi yenilemek istedigi sorulacak. Ona gore bir edit islemi yapilacak.
+    """
+        This function is just for redirect other section.
+    """
+    form = EditDetailForm(request.form)
     if request.method == "GET":
-        password = Passwords.query.filter_by(id=id).first()
-        if password:
-            form = PasswordForm()
-            form.registration.data = password.registration_mail
-            form.username.data = password.platform_username
-            form.password.data = "********"  #password.platform_password
-            form.platform.data = password.platform
-            return render_template("/pages/edit.html", form=form)
-        else:
-            flash("There is no password like this or you do not have permission edit it !", "danger")
-            return redirect(url_for("dashboard"))
+        return render_template("/pages/edit.html", form=form)
     else:
-        pass
+        choose = True
+        section = form.category.data
+        return redirect(url_for("editDetailSection", id=id ,section=section))
+
+# Edit Password
+@app.route("/edit/<string:id>/<string:section>", methods=["GET", "POST"])
+@login_required
+def editDetailSection(id, section):
+    form = EditDetailForm(request.form)
+    if request.method == "GET":
+            choose = True
+            if section == "password":
+                return render_template("pages/edit.html", form=form, choose=choose, pw=True)
+            else:
+                return render_template("pages/edit.html", form=form, choose=choose)
+    else:
+        passwordDetail = Passwords.query.filter_by(id=id).first()
+        if passwordDetail:
+            if section == "password":
+                passwordDetail.platform_password = Encryption.encryptData(form.newPw.data)
+                db.session.commit()
+                flash("Your details has changed successfully !", "success")
+                return redirect(url_for("dashboard"))
+            elif section == "username":
+                passwordDetail.platform_username = form.anyInfo.data
+                db.session.commit()
+                flash("Your details has changed successfully !", "success")
+                return redirect(url_for("dashboard"))
+            elif section == "email":
+                passwordDetail.registration_mail = form.anyInfo.data
+                db.session.commit()
+                flash("Your details has changed successfully !", "success")
+                return redirect(url_for("dashboard"))
+            elif section == "platform":
+                passwordDetail.platform = form.anyInfo.data
+                db.session.commit()
+                flash("Your details has changed successfully !", "success")
+                return redirect(url_for("dashboard"))
+        else:
+            flash("There is no information for this ID !", "warning")
+            return redirect(url_for("dashboard"))
 
 # Show Password
 @app.route("/detail/<string:id>", methods=["GET","POST"])
@@ -221,7 +255,6 @@ def editProfile():
 def editProfileSection(section):
     form = EditProfileForm(request.form)
     if request.method == "GET":
-        print("GET request")
         choose = True
         if section == "password":
             return render_template("pages/editprofile.html", form=form, choose=choose, pw=True)
