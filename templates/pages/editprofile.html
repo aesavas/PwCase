@@ -1,0 +1,37 @@
+{% extends "includes/layout.html" %}
+
+{% block body_content %}
+    {% from "includes/_formhelpers.html" import render_field %}
+    {% if choose %}
+        {% if pw %}
+            <form method="POST">
+                <div class="form-group">
+                    {{ render_field(form.newPw, class="form-control") }}
+                    <button type="submit" class="btn btn-warning form-control">SAVE</button>
+                    <a href="/editprofile" class="btn btn-secondary form-control">BACK</a>
+                </div>
+                <hr>
+            </form>
+        {% else %}
+            <form method="POST">
+                <div class="form-group">
+                    {{ render_field(form.anyInfo, class="form-control") }}
+                    <button type="submit" class="btn btn-warning form-control">SAVE</button>
+                    <a href="/editprofile" class="btn btn-secondary form-control">BACK</a>
+                </div>
+                <hr>
+            </form>
+        {% endif %}
+    {% else %}
+        <form method="POST">
+            <div class="form-group">
+                {{ render_field(form.category, class="form-control") }}
+                <button type="submit" class="btn btn-warning form-control">CHOOSE</button>
+                <a href="/profile" class="btn btn-secondary form-control">BACK</a>
+            </div>
+            <hr>
+        </form>
+    {% endif %}
+
+
+{% endblock body_content %}

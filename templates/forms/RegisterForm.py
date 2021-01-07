@@ -5,7 +5,7 @@ class RegisterForm(Form):
     name = StringField("NAME and SURNAME", validators=[validators.Length(min=5, max=30)])
     username = StringField("USERNAME", validators=[validators.Length(min=5, max=35)])
     email = StringField("EMAIL", validators=[validators.Email(message = "Please enter valid email !")])
-    secret_key = IntegerField("SECRET KEY")
+    secret_key = IntegerField("SECRET KEY", validators=[validators.DataRequired(message="Please, enter valid key.")])
     password = PasswordField("PASSWORD", validators=[
         validators.DataRequired(message="Please, enter valid password."),
         validators.EqualTo(fieldname="re_password", message="Passwords do not match!")

@@ -5,6 +5,7 @@ from templates.forms.LoginForm import LoginForm
 from templates.forms.RegisterForm import RegisterForm
 from templates.forms.PasswordForm import PasswordForm
 from templates.forms.SecretKeyForm import SecretKeyForm
+from templates.forms.EditProfileForm import EditProfileForm
 from passlib.handlers.sha2_crypt import sha256_crypt
 from functools import wraps
 from templates.includes.encryption import Encryption
@@ -28,7 +29,6 @@ class Users(db.Model):
     crypto_key = db.Column(db.Text, nullable=False)
     password_list = db.relationship('Passwords', backref='users', lazy=True)
 
-
 class Passwords(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     registration_mail = db.Column(db.String(80), nullable=False)
@@ -36,7 +36,6 @@ class Passwords(db.Model):
     platform_password = db.Column(db.Text, nullable=False)
     platform = db.Column(db.String(80), nullable=False)
     person_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-
 
 # Login Required Decorator
 def login_required(f):
@@ -49,7 +48,6 @@ def login_required(f):
             return redirect(url_for("login"))
     return decorated_function
 
-
 ###############################################################################################################
 # PAGES
 
@@ -57,7 +55,6 @@ def login_required(f):
 @app.route("/")
 def index():
     return render_template("index.html")
-
 
 # Login
 @app.route("/login", methods=["GET","POST"])
@@ -151,7 +148,6 @@ def deletePassword(id):
         flash("You do not have permission to delete this information!", "warning")
         return redirect(url_for("dashboard"))
 
-
 # Edit Password
 @app.route("/edit/<string:id>", methods=["GET","POST"])
 @login_required
@@ -197,6 +193,67 @@ def showDetail(id):
             auth= False
             flash("You have entered wrong secret key !", "danger")
             return render_template("pages/detail.html", auth=auth, form=form)
+
+# Show Profile
+@app.route("/profile")
+@login_required
+def profile():
+    user = Users.query.filter_by(id=session["id"]).first()
+    return render_template("/pages/profile.html", user=user)
+
+# Edit Profile
+@app.route("/editprofile", methods=["GET","POST"])
+@login_required
+def editProfile():
+    """
+        This function is just for redirect other section.
+    """
+    form = EditProfileForm(request.form)
+    if request.method == "GET":
+        return render_template("/pages/editprofile.html", form=form)
+    else:
+        choose = True
+        section = form.category.data
+        return redirect(url_for("editProfileSection", section=section))
+
+@app.route("/editprofile/<string:section>", methods=["GET","POST"])
+@login_required
+def editProfileSection(section):
+    form = EditProfileForm(request.form)
+    if request.method == "GET":
+        print("GET request")
+        choose = True
+        if section == "password":
+            return render_template("pages/editprofile.html", form=form, choose=choose, pw=True)
+        else:
+            return render_template("pages/editprofile.html", form=form, choose=choose)
+    else:
+        user = Users.query.filter_by(id=session["id"]).first()
+        if section == "password":
+            user.password == sha256_crypt.encrypt(form.newPw.data)
+            db.session.commit()
+            flash("Your password has been changed successfully! Please login again!", "warning")
+            return redirect(url_for("logout"))
+        elif section == "username":
+            user.username = form.anyInfo.data
+            db.session.commit()
+            flash("Your information has been changed successfully!", "success")
+            return redirect(url_for("logout"))
+        elif section == "email":
+            user.email = form.anyInfo.data
+            db.session.commit()
+            flash("Your information has been changed successfully!", "success")
+            return redirect(url_for("profile"))
+        elif section == "secret_key":
+            user.secret_key = form.anyInfo.data
+            db.session.commit()
+            flash("Your information has been changed successfully!", "success")
+            return redirect(url_for("profile"))
+        elif section == "name":
+            user.name_surname = form.anyInfo.data
+            db.session.commit()
+            flash("Your information has been changed successfully!", "success")
+            return redirect(url_for("profile"))
 
 ################################################################################################################
 

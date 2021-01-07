@@ -1,0 +1,29 @@
+{% extends "includes/layout.html" %}
+
+{% block body_content %}
+    <table class="table table-hover table-bordered">
+        <thead class="table-info">
+            <tr>
+                <th scope="col">Category</th>
+                <th scope="col">Info</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th scope="row">Name :</th>
+                <td>{{user.name_surname}}</td>
+            </tr>
+            <tr>
+                <th scope="row">Username : </th>
+                <td>{{user.username}}</td>
+            </tr>
+            <tr>
+                <th scope="row">E-mail :</th>
+                <td>{{user.email}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <hr>
+    <a href="/editprofile" class="btn btn-info form-control">EDIT PROFILE</a>
+    
+{% endblock body_content %}
