@@ -45,7 +45,7 @@ def login_required(f):
         if "logged_in" in session:
             return f(*args, **kwargs)
         else:
-            flash("Bu sayfayi goruntulemek icin lutfen giris yapin.", "danger")
+            flash("Please login to view this page.", "danger")
             return redirect(url_for("login"))
     return decorated_function
 
