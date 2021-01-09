@@ -1,4 +1,4 @@
-from flask import Flask,render_template, redirect, url_for, session, logging, request
+from flask import Flask,render_template, redirect, url_for, session, request
 from flask.helpers import flash
 from flask_sqlalchemy import SQLAlchemy
 from templates.forms.LoginForm import LoginForm
@@ -13,7 +13,7 @@ from templates.includes.encryption import Encryption
 
 app = Flask(__name__)
 app.secret_key = "pwcase"
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:asd123@localhost/pwcase' # Buraya yeni databasein adi yazilacak.
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:asd123@localhost/pwcase' 
 db = SQLAlchemy(app)
 
 ##############################################################################################################
